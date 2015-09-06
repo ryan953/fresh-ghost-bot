@@ -1,7 +1,8 @@
 from debug import *
+import datetime
+import hashlib
 import sys
 import urllib2
-import hashlib
 
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 
@@ -13,7 +14,12 @@ class PageDownloader(object):
   def download(self):
     sys.stdout.write('Downloading: %s\n' % (self.url))
     remote = urllib2.urlopen(self.url)
-    data = self.chunk_read(remote, report_hook=self.chunk_report)
+
+    if PageDownloader.verbose:
+      data = self.chunk_read(remote, report_hook=self.chunk_report)
+    else:
+      data = self.chunk_read(remote)
+
     self.local = open(self.filename, 'w')
     self.local.write(data)
     self.local.close()
@@ -62,7 +68,11 @@ class HTMLPage(object):
   def cachedFilename(self):
     md5 = hashlib.md5()
     md5.update(self.url)
-    return self._cacheDir + md5.hexdigest() + '.html'
+
+    date = datetime.date.today()
+    dateStr = '%s-%s-%s' % (date.year, date.month, date.day, )
+
+    return self._cacheDir + dateStr + '-' + md5.hexdigest() + '.html'
 
   def updateCache(self):
     PageDownloader(self.url, self.cachedFilename()).download()

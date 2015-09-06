@@ -1,19 +1,20 @@
 from BeautifulSoup import SoupStrainer
-from Pages import HTMLPage
+from Pages import HTMLPage, PageDownloader
 
 from debug import *
 
 import argparse
 import codecs
+import datetime
 import json
 import time
 import urllib2
 
 settings = {
-    'debugging':True,
-    'logging':True,
-    'errors':True,
-    'cacheDir':'./data/',
+    'debugging': True,
+    'logging': True,
+    'errors': True,
+    'cacheDir': './data/',
     'teamUrl': 'http://www.freshbooks.com/our-team.php',
     'listFile': './data/last-run.lst',
     'slack': {
@@ -35,19 +36,24 @@ class TeamPage(HTMLPage):
 
 class DataImporter(object):
     def scrape(self, args):
+        PageDownloader.verbose = args.verbose
+
         page = TeamPage(teamUrl=settings['teamUrl'], cacheDir=settings['cacheDir'])
         page.updateCache()
 
         newNames = page.getPeopleNames()
+        print('Found %s names' % (len(newNames),))
 
         ghosts = self.collectGhosts(newNames)
+        print('Found %s ghosts' % (len(ghosts),))
+
         for ghost in ghosts:
             print('%s is a FreshGhost' % (ghost,))
             if args.slack:
                 self.postToSlack(ghost)
 
         if args.save:
-            print 'Saving new names list'
+            print('Saving new names list to %s' % (settings['listFile'],))
             self.save(newNames)
 
     def collectGhosts(self, newNames):
@@ -70,14 +76,23 @@ class DataImporter(object):
         print('Posted to slack about %s', (name,))
 
     def save(self, newNames):
-        with codecs.open(settings['listFile'], 'w', 'utf-8') as f:
-            f.write("\n".join(newNames))
+        date = datetime.date.today()
+        dateStr = '%s-%s-%s' % (date.year, date.month, date.day, )
+        backupFile = './data/' + dateStr + '.lst'
+        self.writeFile(backupFile, newNames)
+        self.writeFile(settings['listFile'], newNames)
+
+    def writeFile(self, filename, lines):
+        with codecs.open(filename, 'w', 'utf-8') as f:
+            f.write("\n".join(lines))
         f.closed
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--save', action='store_true', help='save new list')
     parser.add_argument('--slack', action='store_true', help='post to slack')
+    parser.add_argument('--verbose', action='store_true', help='verbose output')
 
     importer = DataImporter()
     importer.scrape(parser.parse_args())

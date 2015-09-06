@@ -20,11 +20,13 @@ help:
 	@echo "    Clear any existing data"
 	@echo ""
 	@echo "test"
-	@echo "    Run the script without saving new data"
+	@echo "    Run the script without saving new data or posting to slack"
 	@echo "test-slack"
-	@echo "    Run the script without saving new data and also post to slack"
+	@echo "    Run the script without saving new data and DO post to slack"
+	@echo "test-save"
+	@echo "    Run the script and save new data; no posting to slack"
 	@echo "scrape"
-	@echo "    Run the script and save new data"
+	@echo "    Run the script, save new data, post results"
 	@echo ""
 
 
@@ -45,10 +47,13 @@ publish:
 		. ryan953@ryan953.com:/home/ryan953/freshbooks-faces
 
 test:
-	source ./env/bin/activate && python getFaces.py && deactivate
+	source ./env/bin/activate && python getFaces.py --verbose && deactivate
 
 test-slack:
-	source ./env/bin/activate && python getFaces.py --slack && deactivate
+	source ./env/bin/activate && python getFaces.py --verbose --slack && deactivate
+
+test-save:
+	source ./env/bin/activate && python getFaces.py --verbose --save && deactivate
 
 scrape:
 	source ./env/bin/activate && python getFaces.py --save --slack && deactivate
