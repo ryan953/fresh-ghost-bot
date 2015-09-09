@@ -22,6 +22,9 @@ settings = {
     }
 }
 
+DATE = datetime.date.today()
+DATE_STR = '%s-%s-%s' % (DATE.year, DATE.month, DATE.day, )
+
 class TeamPage(HTMLPage):
     def __init__(self, teamUrl, cacheDir):
         super(TeamPage, self).__init__(teamUrl, cacheDir)
@@ -37,6 +40,8 @@ class TeamPage(HTMLPage):
 class DataImporter(object):
     def scrape(self, args):
         PageDownloader.verbose = args.verbose
+
+        print('Starting %s' % (DATE_STR,))
 
         page = TeamPage(teamUrl=settings['teamUrl'], cacheDir=settings['cacheDir'])
         page.updateCache()
@@ -55,6 +60,8 @@ class DataImporter(object):
         if args.save:
             print('Saving new names list to %s' % (settings['listFile'],))
             self.save(newNames)
+
+        print('Done')
 
     def collectGhosts(self, newNames):
         ghosts = []
@@ -76,9 +83,7 @@ class DataImporter(object):
         print('Posted to slack about %s', (name,))
 
     def save(self, newNames):
-        date = datetime.date.today()
-        dateStr = '%s-%s-%s' % (date.year, date.month, date.day, )
-        backupFile = './data/' + dateStr + '.lst'
+        backupFile = './data/' + DATE_STR + '.lst'
         self.writeFile(backupFile, newNames)
         self.writeFile(settings['listFile'], newNames)
 
