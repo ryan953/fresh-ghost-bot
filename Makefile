@@ -31,8 +31,8 @@ help:
 
 
 install:
-	mkdir ./data
-	mkdir ./env
+	mkdir -p ./data
+	mkdir -p ./env
 	touch ./data/last-run.lst
 	pip install virtualenv
 	virtualenv ./env
