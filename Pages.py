@@ -13,7 +13,10 @@ class PageDownloader(object):
 
   def download(self):
     sys.stdout.write('Downloading: %s\n' % (self.url))
-    remote = urllib2.urlopen(self.url)
+
+    request = urllib2.Request(url=self.url)
+    request.add_header('User-Agent', 'ryan953/fresh-ghost-bot')
+    remote = urllib2.urlopen(request)
 
     if PageDownloader.verbose:
       data = self.chunk_read(remote, report_hook=self.chunk_report)
