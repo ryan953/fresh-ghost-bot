@@ -47,7 +47,7 @@ class DataImporter(object):
         page.updateCache()
 
         newNames = page.getPeopleNames()
-        print('Found %s names' % (len(newNames),))
+        print('Found %s names (incl dogs)' % (len(newNames),))
 
         ghosts = self.collectGhosts(newNames)
         print('Found %s ghosts' % (len(ghosts),))
