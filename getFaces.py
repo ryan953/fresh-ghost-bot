@@ -10,17 +10,7 @@ import json
 import time
 import urllib2
 
-settings = {
-    'debugging': True,
-    'logging': True,
-    'errors': True,
-    'cacheDir': './data/',
-    'teamUrl': 'http://www.freshbooks.com/our-team.php',
-    'listFile': './data/last-run.lst',
-    'slack': {
-        'endpoint': 'https://hooks.slack.com/services/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',
-    }
-}
+settings = json.load(open('./config.json'))
 
 DATE = datetime.date.today()
 DATE_STR = '%s-%s-%s' % (DATE.year, DATE.month, DATE.day, )
