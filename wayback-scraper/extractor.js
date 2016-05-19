@@ -20,11 +20,11 @@ process.stdin.on('end', function() {
 
 function processFileList(files) {
   const examinedFiles = contentToArray(open(EXAMINED_FILE));
-  console.log('Already examined:', examinedFiles);
+  console.log('Already examined:', examinedFiles, examinedFiles.length);
 
 
   files = files.filter((file) => examinedFiles.indexOf(file) === -1);
-  console.log('Will examine:', files);
+  console.log('Will examine:', files, files.length);
 
   const urls = files
     .map((file) => open(file))
@@ -32,7 +32,7 @@ function processFileList(files) {
     .reduce((a, b) => a.concat(b), [])
     .filter(_ => _)
     .map((url) => 'https://web.archive.org' + url);
-  console.log('Found URLS:', urls);
+  console.log('Found URLS:', urls, urls.length);
 
   const existing_urls = contentToArray(open(URL_FILE));
   writeTo(URL_FILE, unique(existing_urls.concat(urls)));
@@ -45,7 +45,6 @@ const aboutTeamRegExp = /\/web\/([0-9]+)\/http:\/\/www\.freshbooks\.com\/about\/
 
 
 function findURLs(contents) {
-  console.log('match', contents.match(ourTeamRegExp));
   return Array.from(contents.match(ourTeamRegExp) || []).concat(
     contents.match(aboutTeamRegExp)
   );
