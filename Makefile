@@ -79,7 +79,7 @@ wayback-download:
 	less ./wayback-scraper/urls.lst >> ./wayback-scraper/tmp.lst
 
 	# sort tmp, and get a list of the first 10 unique files (these are known, but not downloaded)
-	less ./wayback-scraper/tmp.lst | sort | uniq -u | head -10 > ./wayback-scraper/toGet-chunk.lst
+	less ./wayback-scraper/tmp.lst | sort | uniq -u | head -100 > ./wayback-scraper/toGet-chunk.lst
 
 	#get those files
-	wget -i ./wayback-scraper/toGet-chunk.lst --wait=3 --force-directories --no-host-directories --directory-prefix=./wayback-scraper/data
+	wget -i ./wayback-scraper/toGet-chunk.lst --wait=1 --force-directories --no-host-directories --directory-prefix=./wayback-scraper/data
