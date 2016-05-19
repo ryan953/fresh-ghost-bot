@@ -5,6 +5,9 @@
 .PHONEY: test-slack
 .PHONEY: scrape
 .PHONEY: clear-cache
+.PHONEY: scrape-old
+.PHONEY: wayback-extract
+.PHONEY: wayback-download
 
 help:
 	@echo "Commands:"
@@ -60,3 +63,23 @@ scrape:
 
 clear-cache:
 	rm -f ./data/*.html
+
+wayback-extract:
+	touch ./wayback-scraper/examined.lst
+	touch ./wayback-scraper/urls.lst
+	cd ./wayback-scraper && find ./data -type f | node ./extractor.js
+	less ./wayback-scraper/urls.lst > ./wayback-scraper/tmp.lst
+	less ./wayback-scraper/tmp.lst | sort | uniq -u > ./wayback-scraper/urls.lst
+
+wayback-download:
+	# get downloaded files into tmp
+	find ./wayback-scraper/data -type f | sed s/\\.\\/wayback\\-scraper\\/data/https:\\/\\/web\\.archive\\.org/g | sed s/http:\\/www/http:\\/\\/www/g | grep "[0-9]/" > ./wayback-scraper/tmp.lst
+
+	# append urls into tmp
+	less ./wayback-scraper/urls.lst >> ./wayback-scraper/tmp.lst
+
+	# sort tmp, and get a list of the first 10 unique files (these are known, but not downloaded)
+	less ./wayback-scraper/tmp.lst | sort | uniq -u | head -10 > ./wayback-scraper/toGet-chunk.lst
+
+	#get those files
+	wget -i ./wayback-scraper/toGet-chunk.lst --wait=3 --force-directories --no-host-directories --directory-prefix=./wayback-scraper/data
