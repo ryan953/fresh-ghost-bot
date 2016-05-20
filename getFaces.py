@@ -1,5 +1,6 @@
 from BeautifulSoup import SoupStrainer
 from Pages import HTMLPage, PageDownloader
+from TeamPage import TeamPage2015
 
 from debug import *
 
@@ -15,31 +16,19 @@ settings = json.load(open('./config.json'))
 DATE = datetime.date.today()
 DATE_STR = '%s-%s-%s' % (DATE.year, DATE.month, DATE.day, )
 
-class TeamPage(HTMLPage):
-    def __init__(self, teamUrl, cacheDir):
-        super(TeamPage, self).__init__(teamUrl, cacheDir)
-
-    def getPeopleNames(self):
-        soup = self.getDom()
-        titles = soup.findAll('div', 'team-name-container') # need to find all `.team-name-container > h3`
-        names = []
-        for title in titles:
-            names.append(title.find('h3').extract().text)
-        return names
-
 class DataImporter(object):
     def scrape(self, args):
         PageDownloader.verbose = args.verbose
 
         print('Starting %s' % (DATE_STR,))
 
-        page = TeamPage(teamUrl=settings['teamUrl'], cacheDir=settings['cacheDir'])
+        page = TeamPage2015(teamUrl=settings['teamUrl'], cacheDir=settings['cacheDir'])
         page.updateCache()
 
-        newNames = page.getPeopleNames()
-        print('Found %s names (incl dogs)' % (len(newNames),))
+        allNames = page.getPeopleNames()
+        print('Found %s names (incl dogs)' % (len(allNames),))
 
-        ghosts = self.collectGhosts(newNames)
+        ghosts = self.collectGhosts(allNames)
         print('Found %s ghosts' % (len(ghosts),))
 
         for ghost in ghosts:
@@ -49,16 +38,16 @@ class DataImporter(object):
 
         if args.save:
             print('Saving new names list to %s' % (settings['listFile'],))
-            self.save(newNames)
+            self.save(allNames)
 
         print('Done')
 
-    def collectGhosts(self, newNames):
+    def collectGhosts(self, allNames):
         ghosts = []
         with codecs.open(settings['listFile'], 'r', 'utf-8') as f:
             for line in f:
                 name = line.strip('\n')
-                if name not in newNames:
+                if name not in allNames:
                     ghosts.append(name)
         f.closed
         return ghosts
