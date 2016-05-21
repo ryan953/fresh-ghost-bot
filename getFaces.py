@@ -8,16 +8,21 @@ import argparse
 import codecs
 import datetime
 import json
+import sys
 import time
 import urllib2
-
-settings = json.load(open('./config.json'))
 
 DATE = datetime.date.today()
 DATE_STR = '%s-%s-%s' % (DATE.year, DATE.month, DATE.day, )
 
 class DataImporter(object):
     def scrape(self, args):
+        try:
+            settings = json.load(open(args.config))
+        except IOError as e:
+            print('No config file %s found' % (args.config,))
+            sys.exit(1)
+
         PageDownloader.verbose = args.verbose
 
         print('Starting %s' % (DATE_STR,))
@@ -74,6 +79,7 @@ class DataImporter(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--config', action='store', help='read files from cacheDir', default='./config.json')
     parser.add_argument('--save', action='store_true', help='save new list')
     parser.add_argument('--slack', action='store_true', help='post to slack')
     parser.add_argument('--verbose', action='store_true', help='verbose output')
