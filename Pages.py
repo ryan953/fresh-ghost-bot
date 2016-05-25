@@ -1,6 +1,5 @@
 from debug import *
 import datetime
-import hashlib
 import sys
 import urllib2
 
@@ -23,9 +22,9 @@ class PageDownloader(object):
     else:
       data = self.chunk_read(remote)
 
-    self.local = open(self.filename, 'w')
-    self.local.write(data)
-    self.local.close()
+    local = open(self.filename, 'w')
+    local.write(data)
+    local.close()
     sys.stdout.write('Saved To: %s\n\n' % (self.filename))
 
   def chunk_report(self, bytes_so_far, chunk_size, total_size):
@@ -69,13 +68,10 @@ class HTMLPage(object):
     return self.url
 
   def cachedFilename(self):
-    md5 = hashlib.md5()
-    md5.update(self.url)
-
     date = datetime.date.today()
     dateStr = '%s-%s-%s' % (date.year, date.month, date.day, )
 
-    return self._cacheDir + dateStr + '-' + md5.hexdigest() + '.html'
+    return self._cacheDir + dateStr + '-' + '.html'
 
   def getHtml(self):
     try:
