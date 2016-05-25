@@ -4,14 +4,14 @@ import urllib2
 
 class Downloader(object):
 
-  def download(self, url):
+  def download(self, url, verbose=False):
     sys.stdout.write('Downloading: %s\n' % (url, ))
 
     request = urllib2.Request(url=url)
     request.add_header('User-Agent', 'ryan953/fresh-ghost-bot')
     remote = urllib2.urlopen(request)
 
-    if PageDownloader.verbose:
+    if verbose:
       data = self.chunk_read(remote, report_hook=self.chunk_report)
     else:
       data = self.chunk_read(remote)

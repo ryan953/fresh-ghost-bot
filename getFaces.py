@@ -23,12 +23,10 @@ class DataImporter(object):
             print('No config file %s found' % (args.config,))
             sys.exit(1)
 
-        PageDownloader.verbose = args.verbose
-
         print('Starting %s' % (DATE_STR,))
 
         filename = self.getFilenameForToday(settings['cacheDir'])
-        data = Downloader().download(settings['teamUrl'])
+        data = Downloader().download(settings['teamUrl'], args.verbose)
         Downloader().save(data, filename)
 
         allNames = TeamPage2015(filename).getPeopleNames()
