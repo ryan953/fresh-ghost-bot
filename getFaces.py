@@ -1,4 +1,5 @@
 from BeautifulSoup import SoupStrainer
+from Downloader import Downloader
 from Pages import HTMLPage, PageDownloader
 from TeamPage import TeamPage2015
 
@@ -28,7 +29,8 @@ class DataImporter(object):
         print('Starting %s' % (DATE_STR,))
 
         page = TeamPage2015(teamUrl=settings['teamUrl'], cacheDir=settings['cacheDir'])
-        PageDownloader(page.url, page.cachedFilename()).download()
+        data = Downloader().download(page.url)
+        Downloader().save(data, page.cachedFilename())
 
         allNames = page.getPeopleNames()
         print('Found %s names (incl dogs)' % (len(allNames),))
