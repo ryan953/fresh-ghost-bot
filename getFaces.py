@@ -1,7 +1,6 @@
 from BeautifulSoup import SoupStrainer
 from Downloader import Downloader
-from Pages import HTMLPage, PageDownloader
-from TeamPage import TeamPage2015
+from Pages import HTMLPage, TeamPage2015
 
 from debug import *
 
@@ -28,11 +27,11 @@ class DataImporter(object):
 
         print('Starting %s' % (DATE_STR,))
 
-        page = TeamPage2015(teamUrl=settings['teamUrl'], cacheDir=settings['cacheDir'])
-        data = Downloader().download(page.url)
-        Downloader().save(data, page.cachedFilename())
+        filename = self.getFilenameForToday(settings['cacheDir'])
+        data = Downloader().download(settings['teamUrl'])
+        Downloader().save(data, filename)
 
-        allNames = page.getPeopleNames()
+        allNames = TeamPage2015(filename).getPeopleNames()
         print('Found %s names (incl dogs)' % (len(allNames),))
 
         ghosts = self.collectGhosts(allNames)
@@ -48,6 +47,11 @@ class DataImporter(object):
             self.save(allNames)
 
         print('Done')
+
+    def getFilenameForToday(self, folder):
+        date = datetime.date.today()
+        dateStr = '%s-%s-%s' % (date.year, date.month, date.day, )
+        return folder + dateStr + '-' + '.html'
 
     def collectGhosts(self, allNames):
         ghosts = []

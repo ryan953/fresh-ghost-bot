@@ -1,26 +1,15 @@
-from debug import *
-import datetime
-
 from BeautifulSoup import BeautifulSoup, SoupStrainer
 
+from debug import *
+
 class HTMLPage(object):
-  def __init__(self, url, cacheDir):
-    self.url = url
-    self._cacheDir = cacheDir
+  def __init__(self, filename):
+    self.filename = filename
     self.parseOnly = SoupStrainer('body')
-
-  def __str__(self):
-    return self.url
-
-  def cachedFilename(self):
-    date = datetime.date.today()
-    dateStr = '%s-%s-%s' % (date.year, date.month, date.day, )
-
-    return self._cacheDir + dateStr + '-' + '.html'
 
   def getHtml(self):
     try:
-      return open(self.cachedFilename(), 'r')
+      return open(self.filename, 'r')
     except IOError as e:
       print("({})".format(e))
       return ''
@@ -28,3 +17,18 @@ class HTMLPage(object):
   def getDom(self):
     return BeautifulSoup(self.getHtml(), parseOnlyThese=self.parseOnly)
 
+  def getPeopleNames(self):
+    # Override in subclasses
+    pass
+
+class TeamPage2015(HTMLPage):
+    def __init__(self, teamUrl, cacheDir):
+        super(TeamPage2015, self).__init__(teamUrl, cacheDir)
+
+    def getPeopleNames(self):
+        soup = self.getDom()
+        titles = soup.findAll('div', 'team-name-container') # need to find all `.team-name-container > h3`
+        names = []
+        for title in titles:
+            names.append(title.find('h3').extract().text)
+        return names
