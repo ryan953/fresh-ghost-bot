@@ -77,9 +77,6 @@ class HTMLPage(object):
 
     return self._cacheDir + dateStr + '-' + md5.hexdigest() + '.html'
 
-  def updateCache(self):
-    PageDownloader(self.url, self.cachedFilename()).download()
-
   def getHtml(self):
     try:
       return open(self.cachedFilename(), 'r')

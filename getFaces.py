@@ -28,7 +28,7 @@ class DataImporter(object):
         print('Starting %s' % (DATE_STR,))
 
         page = TeamPage2015(teamUrl=settings['teamUrl'], cacheDir=settings['cacheDir'])
-        page.updateCache()
+        PageDownloader(page.url, page.cachedFilename()).download()
 
         allNames = page.getPeopleNames()
         print('Found %s names (incl dogs)' % (len(allNames),))
