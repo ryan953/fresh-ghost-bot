@@ -22,8 +22,8 @@ class HTMLPage(object):
     pass
 
 class TeamPage2015(HTMLPage):
-    def __init__(self, teamUrl, cacheDir):
-        super(TeamPage2015, self).__init__(teamUrl, cacheDir)
+    def __init__(self, filename):
+        super(TeamPage2015, self).__init__(filename)
 
     def getPeopleNames(self):
         soup = self.getDom()

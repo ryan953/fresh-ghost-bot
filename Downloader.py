@@ -18,12 +18,6 @@ class Downloader(object):
 
     return data
 
-  def save(self, data, filename):
-    local = open(filename, 'w')
-    local.write(data)
-    local.close()
-    sys.stdout.write('Saved To: %s\n\n' % (filename, ))
-
   def chunk_report(self, bytes_so_far, chunk_size, total_size):
     percent = 0 if total_size == 0 else float(bytes_so_far) / total_size
     sys.stdout.write("Downloaded %d of %d bytes (%0.2f%%)\r" %

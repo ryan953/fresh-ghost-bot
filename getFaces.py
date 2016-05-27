@@ -3,90 +3,67 @@ from Downloader import Downloader
 from Pages import HTMLPage, TeamPage2015
 
 from debug import *
+from files import readLines, writeLines, writeData
+from slack import postToSlack
+from utils import getFilenameForToday, getMissingNames
 
 import argparse
-import codecs
-import datetime
 import json
 import sys
-import time
-import urllib2
-
-DATE = datetime.date.today()
-DATE_STR = '%s-%s-%s' % (DATE.year, DATE.month, DATE.day, )
 
 class DataImporter(object):
-  def scrape(self, args):
+  def __init__(self, args):
     try:
-      settings = json.load(open(args.config))
+      self.args = args
+      self.settings = json.load(open(args.config))
     except IOError as e:
       print('No config file %s found' % (args.config,))
       sys.exit(1)
 
-    print('Starting %s' % (DATE_STR,))
+  def scrape(self):
+    htmlFile = getFilenameForToday(self.settings['cacheDir'], '.html')
+    print('Starting %s' % (htmlFile,))
 
-    filename = self.getFilenameForToday(settings['cacheDir'])
-    data = Downloader().download(settings['teamUrl'], args.verbose)
-    Downloader().save(data, filename)
+    if (self.args.download):
+      writeData(
+        Downloader()
+          .download(self.settings['teamUrl'], self.args.verbose),
+        htmlFile
+      )
 
-    allNames = TeamPage2015(filename).getPeopleNames()
-    print('Found %s names (incl dogs)' % (len(allNames),))
+    oldNameList = readLines(self.settings['listFile'])
+    print('Found %s names from last time' % (len(oldNameList), ))
 
-    ghosts = self.collectGhosts(allNames)
-    print('Found %s ghosts' % (len(ghosts),))
+    newNameList = TeamPage2015(htmlFile).getPeopleNames()
+    print('Found %s new names (incl dogs)' % (len(newNameList), ))
+
+    ghosts = getMissingNames(oldNameList, newNameList)
+    print('Found %s ghosts' % (len(ghosts), ))
+
+    additions = len(newNameList) - len(oldNameList) - len(ghosts)
+    print('Found %s new Freshies' % (additions, ))
 
     for ghost in ghosts:
       print('%s is a FreshGhost' % (ghost,))
-      if args.slack:
-        self.postToSlack(ghost)
+      if self.args.postToSlack:
+        postToSlack(self.settings['slack']['endpoint'], ghost)
+        print('Posted to slack about %s', (name,))
 
-    if args.save:
-      print('Saving new names list to %s' % (settings['listFile'],))
-      self.save(allNames)
+    if self.args.save:
+      print('Saving new names list to %s' % (self.settings['listFile'],))
+      writeLines(getFilenameForToday(self.settings['cacheDir'], '.lst'), newNameList)
+      writeLines(self.settings['listFile'], newNameList)
 
     print('Done')
-
-  def getFilenameForToday(self, folder):
-    date = datetime.date.today()
-    dateStr = '%s-%s-%s' % (date.year, date.month, date.day, )
-    return folder + dateStr + '-' + '.html'
-
-  def collectGhosts(self, allNames):
-    ghosts = []
-    with codecs.open(settings['listFile'], 'r', 'utf-8') as f:
-      for line in f:
-        name = line.strip('\n')
-        if name not in allNames:
-          ghosts.append(name)
-    f.closed
-    return ghosts
-
-  def postToSlack(self, name):
-    data = json.dumps({
-      'text': '%s is a FreshGhost' % (name,),
-    })
-    urllib2.urlopen(
-      urllib2.Request(settings['slack']['endpoint'], data)
-    )
-    print('Posted to slack about %s', (name,))
-
-  def save(self, newNames):
-    backupFile = './data/' + DATE_STR + '.lst'
-    self.writeFile(backupFile, newNames)
-    self.writeFile(settings['listFile'], newNames)
-
-  def writeFile(self, filename, lines):
-    with codecs.open(filename, 'w', 'utf-8') as f:
-      f.write("\n".join(lines))
-    f.closed
 
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument('--config', action='store', help='read files from cacheDir', default='./config.json')
   parser.add_argument('--save', action='store_true', help='save new list')
+  parser.add_argument('--download', action='store_true', help='download todays file')
   parser.add_argument('--slack', action='store_true', help='post to slack')
   parser.add_argument('--verbose', action='store_true', help='verbose output')
 
-  importer = DataImporter()
-  importer.scrape(parser.parse_args())
+  importer = DataImporter(parser.parse_args())
+  importer.scrape()
