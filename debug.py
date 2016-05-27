@@ -2,20 +2,20 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 def debug(msg = ''):
-	try:
-		debug = settings['debugging']
-	except:
-		debug = True
+  try:
+    debug = settings['debugging']
+  except:
+    debug = True
 
-	if debug: 
-		pp.pprint(msg)
-	
+  if debug:
+    pp.pprint(msg)
+
 
 def log(msg = ''):
-	try:
-		log = settings['logging']
-	except:
-		log = True
+  try:
+    log = settings['logging']
+  except:
+    log = True
 
-	if log:
-		pp.pprint(msg)
+  if log:
+    pp.pprint(msg)
