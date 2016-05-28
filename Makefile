@@ -51,16 +51,16 @@ publish:
 		. ryan953@ryan953.com:/home/ryan953/freshbooks-faces
 
 test:
-	source ./env/bin/activate && python getFaces.py --verbose && deactivate
+	source ./env/bin/activate && python getFaces.py --download --verbose && deactivate
 
 test-slack:
-	source ./env/bin/activate && python getFaces.py --verbose --slack && deactivate
+	source ./env/bin/activate && python getFaces.py --download --verbose --slack && deactivate
 
 test-save:
-	source ./env/bin/activate && python getFaces.py --verbose --save && deactivate
+	source ./env/bin/activate && python getFaces.py --download --verbose --save && deactivate
 
 scrape:
-	source ./env/bin/activate && python getFaces.py --save --slack && deactivate
+	source ./env/bin/activate && python getFaces.py --download --save --slack && deactivate
 
 clear-cache:
 	rm -f ./data/*.html
