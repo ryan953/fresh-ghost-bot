@@ -8,11 +8,7 @@ class HTMLPage(object):
     self.parseOnly = SoupStrainer('body')
 
   def getHtml(self):
-    try:
-      return open(self.filename, 'r')
-    except IOError as e:
-      print("({})".format(e))
-      return ''
+    return open(self.filename, 'r')
 
   def getDom(self):
     return BeautifulSoup(self.getHtml(), parseOnlyThese=self.parseOnly)
