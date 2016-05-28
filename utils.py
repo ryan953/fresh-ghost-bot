@@ -9,5 +9,5 @@ def getMissingNames(oldNameList, newNameList):
     ghosts = []
     for oldName in oldNameList:
       if oldName not in newNameList:
-        ghosts.append(name)
+        ghosts.append(oldName)
     return ghosts

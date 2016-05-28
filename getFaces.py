@@ -40,12 +40,13 @@ class DataImporter(object):
     ghosts = getMissingNames(oldNameList, newNameList)
     print('Found %s ghosts' % (len(ghosts), ))
 
-    additions = len(newNameList) - len(oldNameList) - len(ghosts)
+    remaining = len(oldNameList) - len(ghosts)
+    additions = len(newNameList) - remaining
     print('Found %s new Freshies' % (additions, ))
 
     for ghost in ghosts:
       print('%s is a FreshGhost' % (ghost,))
-      if self.args.postToSlack:
+      if self.args.slack:
         postToSlack(self.settings['slack']['endpoint'], ghost)
         print('Posted to slack about %s', (name,))
 
