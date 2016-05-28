@@ -48,6 +48,7 @@ publish:
 		--exclude='.git' \
 		--exclude='./data' \
 		--exclude='./env' \
+		--exclude='./wayback-scraper/data' \
 		. ryan953@ryan953.com:/home/ryan953/freshbooks-faces
 
 test:
