@@ -1,6 +1,6 @@
 from BeautifulSoup import SoupStrainer
 from Downloader import Downloader
-from Pages import HTMLPage, TeamPage2015
+from Pages import HTMLPage
 
 from debug import *
 from files import readLines, writeLines, writeData, listFiles
@@ -42,27 +42,29 @@ class DataImporter(object):
       [f for f in allFiles if f[-4:] == '.lst'],
       listFile
     )
-    print('Prev list file %s' % (prevListFile, ))
 
-    oldNameList = readLines(prevListFile)
-    print('Found %s names from last time' % (len(oldNameList), ))
-
-    newNameList = TeamPage2015(htmlFile).getPeopleNames()
+    newNameList = HTMLPage(htmlFile).getPeopleNames()
     print('Found %s new names (incl dogs)' % (len(newNameList), ))
 
-    ghosts = getMissingNames(oldNameList, newNameList)
-    print('Found %s ghosts' % (len(ghosts), ))
+    if prevListFile:
+      oldNameList = readLines(prevListFile)
+      print('Prev name list %s (%s names)' % (prevListFile, len(oldNameList), ))
 
-    remaining = len(oldNameList) - len(ghosts)
-    additions = len(newNameList) - remaining
-    print('Found %s new Freshies' % (additions, ))
+      ghosts = getMissingNames(oldNameList, newNameList)
+      print('Found %s ghosts' % (len(ghosts), ))
 
-    for ghost in ghosts:
-      if self.args.verbose:
-        print('%s is a FreshGhost' % (ghost, ))
-      if self.args.slack:
-        postToSlack(self.settings['slack']['endpoint'], ghost)
-        print('Posted to slack about %s', (name, ))
+      remaining = len(oldNameList) - len(ghosts)
+      additions = len(newNameList) - remaining
+      print('Found %s new Freshies' % (additions, ))
+
+      for ghost in ghosts:
+        if self.args.verbose:
+          print('%s is a FreshGhost' % (ghost, ))
+        if self.args.slack:
+          postToSlack(self.settings['slack']['endpoint'], ghost)
+          print('Posted to slack about %s', (name, ))
+    else:
+      print('No prev name list found. Is this the start of time?')
 
     if self.args.save:
       print('Saving new names list to %s' % (listFile, ))

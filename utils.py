@@ -7,7 +7,10 @@ def getFilenameForToday(folder, ext):
 
 def getFilenameBefore(files, target):
   lessFiles = filter(lambda file: file < target, files)
-  return lessFiles[-1]
+  if len(lessFiles):
+    return lessFiles[-1]
+  else:
+    return None
 
 def getMissingNames(oldNameList, newNameList):
   ghosts = []

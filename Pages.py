@@ -1,6 +1,19 @@
-from BeautifulSoup import BeautifulSoup, SoupStrainer
+from BeautifulSoup import BeautifulSoup, SoupStrainer, NavigableString
 
 from debug import *
+
+def getFromTeamNameContainer(soup):
+  titles = soup.findAll('div', 'team-name-container') # need to find all `.team-name-container > h3`
+  return [title.find('h3').string for title in titles]
+
+def getH3FromTeamImg(soup):
+  images = soup.findAll('img', 'teamImg') # need to find all `img[class=teamImg] & h3`
+  return [img.findNextSibling('h3').string for img in images]
+
+def getH3UnderTeamClass(soup):
+  titles = soup.findAll('div', 'team') # need to find all `.team > h3`
+  print(dir(titles[0]))
+  return [title.find('h3').string for title in titles]
 
 class HTMLPage(object):
   def __init__(self, filename):
@@ -11,20 +24,28 @@ class HTMLPage(object):
     return open(self.filename, 'r')
 
   def getDom(self):
-    return BeautifulSoup(self.getHtml(), parseOnlyThese=self.parseOnly)
+    return BeautifulSoup(
+      self.getHtml(),
+      parseOnlyThese=self.parseOnly,
+      convertEntities=BeautifulSoup.HTML_ENTITIES
+    )
 
   def getPeopleNames(self):
-    # Override in subclasses
-    pass
+    soup = self.getDom()
 
-class TeamPage2015(HTMLPage):
-    def __init__(self, filename):
-        super(TeamPage2015, self).__init__(filename)
+    strategies = [
+      getFromTeamNameContainer,
+      getH3FromTeamImg,
+      getH3UnderTeamClass,
+    ]
 
-    def getPeopleNames(self):
-        soup = self.getDom()
-        titles = soup.findAll('div', 'team-name-container') # need to find all `.team-name-container > h3`
-        names = []
-        for title in titles:
-            names.append(title.find('h3').extract().text)
+    for strat in strategies:
+      names = strat(soup)
+      if len(names) > 0:
+        print('Found Names')
+        print(names)
         return names
+      else:
+        print('No Names')
+
+    return None
