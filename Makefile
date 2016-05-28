@@ -8,6 +8,7 @@
 .PHONEY: scrape-old
 .PHONEY: wayback-extract
 .PHONEY: wayback-download
+.PHONEY: format-file-names
 
 help:
 	@echo "Commands:"
@@ -83,3 +84,6 @@ wayback-download:
 
 	#get those files
 	wget -i ./wayback-scraper/toGet-chunk.lst --wait=1 --force-directories --no-host-directories --directory-prefix=./wayback-scraper/data
+
+format-file-names:
+	./format-file-names.sh
