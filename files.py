@@ -1,4 +1,6 @@
 from debug import *
+from os import listdir
+from os.path import isfile, join
 
 import codecs
 
@@ -19,3 +21,7 @@ def writeData(data, filename):
   local.write(data)
   local.close()
   print('Saved To: %s' % (filename, ))
+
+def listFiles(dir):
+  onlyfiles = [dir + f for f in listdir(dir) if isfile(join(dir, f))]
+  return onlyfiles
