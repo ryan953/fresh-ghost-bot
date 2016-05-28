@@ -1,6 +1,7 @@
 .PHONEY: help
 .PHONEY: install
 .PHONEY: publish
+.PHONEY: publish-data
 .PHONEY: test
 .PHONEY: test-slack
 .PHONEY: scrape
@@ -50,6 +51,11 @@ publish:
 		--exclude='./env' \
 		--exclude='./wayback-scraper/data' \
 		. ryan953@ryan953.com:/home/ryan953/freshbooks-faces
+
+publish-data:
+	rsync -zhrv -e '/usr/bin/ssh' \
+		--bwlimit=2000 \
+		./data ryan953@ryan953.com:/home/ryan953/freshbooks-faces/data
 
 test:
 	source ./env/bin/activate && python getFaces.py --download --verbose && deactivate
