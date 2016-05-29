@@ -1,6 +1,8 @@
 env/
 config.json
 data/*
+public/*
 wayback-scraper/data
 wayback-scraper/*.lst
 *.pyc
+

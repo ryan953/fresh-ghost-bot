@@ -4,18 +4,22 @@ import re
 
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 
-def prepareGraphData(data):
+def prepareGraphData(data, notAfter):
   newData = []
+
+  stopOrdinal = stringToDate(notAfter).toordinal()
 
   for key in data:
     value = data[key]
-    newData.append(dict(
-      date=value['date'],
-      ordinal=stringToDate(value['date']).toordinal(),
-      count=value['count'],
-      additions=value['additions'],
-      removals=-1 * value['removals'],
-    ))
+    ordinal = stringToDate(value['date']).toordinal()
+    if ordinal <= stopOrdinal:
+      newData.append(dict(
+        date=value['date'],
+        ordinal=ordinal,
+        count=value['count'],
+        additions=value['additions'],
+        removals=-1 * value['removals'],
+      ))
 
   return sorted(newData, key=lambda k: k['ordinal'])
 

@@ -97,7 +97,7 @@ class DataImporter(object):
       jsonFileReader = open(self.settings['summaryFile'], 'r')
       renderGraph(
         self.settings['graphDir'] + todayClean + '.png',
-        prepareGraphData(json.load(jsonFileReader))
+        prepareGraphData(json.load(jsonFileReader), todayClean),
       )
 
       if self.args.slack:
