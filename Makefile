@@ -74,7 +74,7 @@ test-save:
 	source ./env/bin/activate && python getFaces.py --download --verbose --save && deactivate
 
 scrape:
-	source ./env/bin/activate && python getFaces.py --download --save --slack && deactivate
+	source ./env/bin/activate && python getFaces.py --download --save --graph --slack && deactivate
 
 clear-cache:
 	rm -f ./data/*.html
