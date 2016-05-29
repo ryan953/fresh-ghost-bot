@@ -11,8 +11,6 @@ def postGhostToSlack(endpoint, name):
 
 def postGraphToSlack(endpoint, date, graphURL, summaryData):
   data = json.dumps({
-    'channel': '@ryan',
-
     'attachments': [{
       'fallback': 'Today\'s employee chart is ready',
       'title': 'Employee Growth Chart - %s' % (date, ),
