@@ -1,9 +1,9 @@
 import datetime
 
-def getFilenameForToday(folder, ext):
+def getToday():
   date = datetime.date.today()
   dateStr = '{:%Y-%m-%d}'.format(date)
-  return folder + dateStr + ext
+  return dateStr
 
 def getFilenameBefore(files, target):
   lessFiles = filter(lambda file: file < target, files)

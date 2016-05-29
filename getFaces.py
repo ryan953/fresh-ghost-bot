@@ -5,10 +5,11 @@ from Pages import HTMLPage
 from debug import *
 from files import readLines, writeLines, writeData, listFiles
 from slack import postToSlack
-from utils import getFilenameForToday, getMissingNames, getFilenameBefore
+from utils import getToday, getMissingNames, getFilenameBefore
 
 import argparse
 import json
+import re
 import sys
 
 class DataImporter(object):
@@ -23,12 +24,12 @@ class DataImporter(object):
       sys.exit(1)
 
   def scrape(self):
+    today = getToday()
     if self.args.date:
-      htmlFile = self.settings['cacheDir'] + self.args.date + '.html'
-      listFile = self.settings['cacheDir'] + self.args.date + '.lst'
-    else:
-      htmlFile = getFilenameForToday(self.settings['cacheDir'], '.html')
-      listFile = getFilenameForToday(self.settings['cacheDir'], '.lst')
+      today = self.args.date
+
+    htmlFile = self.settings['cacheDir'] + today + '.html'
+    listFile = self.settings['cacheDir'] + today + '.lst'
 
     print('Starting %s' % (htmlFile, ))
     print('List file %s' % (listFile, ))
@@ -67,10 +68,27 @@ class DataImporter(object):
           print('Posted to slack about %s', (name, ))
     else:
       print('No prev name list found. Is this the start of time?')
+      ghosts = []
+      additions = 0
 
     if self.args.save:
       print('Saving new names list to %s' % (listFile, ))
       writeLines(listFile, newNameList)
+
+      jsonFileReader = open(self.settings['jsonFile'], 'r')
+      summaryData = json.load(jsonFileReader)
+      summaryData[today] = dict(
+        date=re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today),
+        count=len(newNameList),
+        additions=additions,
+        removals=len(ghosts),
+      )
+      jsonFileReader.close()
+
+      print('Adding to summary json %s' % (self.settings['jsonFile'], ))
+      jsonFileWriter = open(self.settings['jsonFile'], 'w')
+      json.dump(summaryData, jsonFileWriter)
+      jsonFileWriter.close()
 
     print('Done')
 
@@ -80,7 +98,7 @@ if __name__ == "__main__":
   parser.add_argument('--config', action='store', help='read files from cacheDir', default='./config.json')
   parser.add_argument('--download', action='store_true', help='download todays file')
   parser.add_argument('--date', action='store', help='Use this date string for processing')
-  parser.add_argument('--save', action='store_true', help='save new list')
+  parser.add_argument('--save', action='store_true', help='save new list & update summary json')
   parser.add_argument('--slack', action='store_true', help='post to slack')
   parser.add_argument('--verbose', action='store_true', help='verbose output')
 

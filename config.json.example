@@ -4,6 +4,7 @@
     "errors": true,
     "cacheDir": "./data/",
     "teamUrl": "http://www.freshbooks.com/our-team.php",
+    "jsonFile": "./data/summary.json",
     "slack": {
         "endpoint": "https://hooks.slack.com/services/XXX"
     }

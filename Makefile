@@ -39,6 +39,8 @@ install:
 	mkdir -p ./data
 	mkdir -p ./env
 	touch ./data/last-run.lst
+	touch ./data/summary.json
+	[ -s ./data/summary.json ] || echo '{}' > ./data/summary.json
 	pip install virtualenv
 	virtualenv ./env
 	source ./env/bin/activate && pip install BeautifulSoup && deactivate
