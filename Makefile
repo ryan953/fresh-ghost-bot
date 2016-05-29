@@ -5,7 +5,6 @@
 .PHONEY: test
 .PHONEY: test-slack
 .PHONEY: scrape
-.PHONEY: clear-cache
 .PHONEY: scrape-old
 .PHONEY: wayback-extract
 .PHONEY: wayback-download
@@ -75,9 +74,6 @@ test-save:
 
 scrape:
 	source ./env/bin/activate && python getFaces.py --download --save --graph --slack && deactivate
-
-clear-cache:
-	rm -f ./data/*.html
 
 wayback-extract:
 	touch ./wayback-scraper/examined.lst
