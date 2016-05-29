@@ -12,7 +12,6 @@ def getH3FromTeamImg(soup):
 
 def getH3UnderTeamClass(soup):
   titles = soup.findAll('div', 'team') # need to find all `.team > h3`
-  print(dir(titles[0]))
   return [title.find('h3').string for title in titles]
 
 class HTMLPage(object):
@@ -43,7 +42,6 @@ class HTMLPage(object):
       names = strat(soup)
       if len(names) > 0:
         print('Found Names')
-        print(names)
         return names
       else:
         print('No Names')

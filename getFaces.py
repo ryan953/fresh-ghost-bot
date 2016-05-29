@@ -15,7 +15,9 @@ class DataImporter(object):
   def __init__(self, args):
     try:
       self.args = args
-      self.settings = json.load(open(args.config))
+      local = open(args.config)
+      self.settings = json.load(local)
+      local.close()
     except IOError as e:
       print('No config file %s found' % (args.config,))
       sys.exit(1)
