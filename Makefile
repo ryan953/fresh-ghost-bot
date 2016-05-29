@@ -53,10 +53,10 @@ publish:
 	rsync -zhrv -e '/usr/bin/ssh' \
 		--bwlimit=2000 \
 		--exclude='.git' \
-		--exclude='./data' \
-		--exclude='./env' \
-		--exclude='./public' \
-		--exclude='./wayback-scraper/data' \
+		--exclude='/data' \
+		--exclude='/env' \
+		--exclude='/public' \
+		--exclude='/wayback-scraper/data' \
 		. ryan953@ryan953.com:/home/ryan953/freshbooks-faces
 
 publish-data:
