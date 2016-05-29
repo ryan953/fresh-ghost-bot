@@ -43,7 +43,7 @@ install:
 	[ -s ./data/summary.json ] || echo '{}' > ./data/summary.json
 	pip install virtualenv
 	virtualenv ./env
-	source ./env/bin/activate && pip install BeautifulSoup && deactivate
+	source ./env/bin/activate && pip install BeautifulSoup matplotlib && deactivate
 
 publish:
 	rsync -zhrv -e '/usr/bin/ssh' \

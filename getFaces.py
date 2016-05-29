@@ -4,6 +4,7 @@ from Pages import HTMLPage
 
 from debug import *
 from files import readLines, writeLines, writeData, listFiles
+from graph import prepareGraphData, renderGraph
 from slack import postToSlack
 from utils import getToday, getMissingNames, getFilenameBefore
 
@@ -28,6 +29,7 @@ class DataImporter(object):
     if self.args.date:
       today = self.args.date
 
+    todayClean = re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today)
     htmlFile = self.settings['cacheDir'] + today + '.html'
     listFile = self.settings['cacheDir'] + today + '.lst'
 
@@ -78,7 +80,7 @@ class DataImporter(object):
       jsonFileReader = open(self.settings['jsonFile'], 'r')
       summaryData = json.load(jsonFileReader)
       summaryData[today] = dict(
-        date=re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today),
+        date=todayClean,
         count=len(newNameList),
         additions=additions,
         removals=len(ghosts),
@@ -90,14 +92,23 @@ class DataImporter(object):
       json.dump(summaryData, jsonFileWriter)
       jsonFileWriter.close()
 
+    if self.args.graph:
+      print('Building graph')
+      jsonFileReader = open(self.settings['jsonFile'], 'r')
+      renderGraph(
+        './data/' + todayClean + '.png',
+        prepareGraphData(json.load(jsonFileReader))
+      )
+
     print('Done')
 
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument('--config', action='store', help='read files from cacheDir', default='./config.json')
-  parser.add_argument('--download', action='store_true', help='download todays file')
   parser.add_argument('--date', action='store', help='Use this date string for processing')
+  parser.add_argument('--download', action='store_true', help='download todays file')
+  parser.add_argument('--graph', action='store_true', help='create a graph with the summary data')
   parser.add_argument('--save', action='store_true', help='save new list & update summary json')
   parser.add_argument('--slack', action='store_true', help='post to slack')
   parser.add_argument('--verbose', action='store_true', help='verbose output')
