@@ -5,7 +5,7 @@ from Pages import HTMLPage
 from debug import *
 from files import readLines, writeLines, writeData, listFiles
 from graph import prepareGraphData, renderGraph
-from slack import postToSlack
+from slack import postGhostToSlack, postGraphToSlack
 from utils import getToday, getMissingNames, getFilenameBefore
 
 import argparse
@@ -31,7 +31,7 @@ class DataImporter(object):
 
     todayClean = re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today)
     htmlFile = self.settings['cacheDir'] + today + '.html'
-    listFile = self.settings['cacheDir'] + today + '.lst'
+    listFile = self.settings['namesDir'] + today + '.lst'
 
     print('Starting %s' % (htmlFile, ))
     print('List file %s' % (listFile, ))
@@ -42,7 +42,7 @@ class DataImporter(object):
         htmlFile
       )
 
-    allFiles = listFiles(self.settings['cacheDir'])
+    allFiles = listFiles(self.settings['namesDir'])
     prevListFile = getFilenameBefore(
       [f for f in allFiles if f[-4:] == '.lst'],
       listFile
@@ -66,7 +66,7 @@ class DataImporter(object):
         if self.args.verbose:
           print('%s is a FreshGhost' % (ghost, ))
         if self.args.slack:
-          postToSlack(self.settings['slack']['endpoint'], ghost)
+          postGhostToSlack(self.settings['slack']['endpoint'], ghost)
           print('Posted to slack about %s', (name, ))
     else:
       print('No prev name list found. Is this the start of time?')
@@ -77,7 +77,7 @@ class DataImporter(object):
       print('Saving new names list to %s' % (listFile, ))
       writeLines(listFile, newNameList)
 
-      jsonFileReader = open(self.settings['jsonFile'], 'r')
+      jsonFileReader = open(self.settings['summaryFile'], 'r')
       summaryData = json.load(jsonFileReader)
       summaryData[today] = dict(
         date=todayClean,
@@ -87,18 +87,31 @@ class DataImporter(object):
       )
       jsonFileReader.close()
 
-      print('Adding to summary json %s' % (self.settings['jsonFile'], ))
-      jsonFileWriter = open(self.settings['jsonFile'], 'w')
+      print('Adding to summary json %s' % (self.settings['summaryFile'], ))
+      jsonFileWriter = open(self.settings['summaryFile'], 'w')
       json.dump(summaryData, jsonFileWriter)
       jsonFileWriter.close()
 
     if self.args.graph:
       print('Building graph')
-      jsonFileReader = open(self.settings['jsonFile'], 'r')
+      jsonFileReader = open(self.settings['summaryFile'], 'r')
       renderGraph(
-        './data/' + todayClean + '.png',
+        self.settings['graphDir'] + todayClean + '.png',
         prepareGraphData(json.load(jsonFileReader))
       )
+
+      if self.args.slack:
+        postGraphToSlack(
+          self.settings['slack']['endpoint'],
+          todayClean,
+          self.settings['graphURLRoot'] + todayClean + '.png',
+          dict(
+            date=todayClean,
+            count=len(newNameList),
+            additions=additions,
+            removals=len(ghosts),
+          ))
+        print('Posted graph image to slack')
 
     print('Done')
 

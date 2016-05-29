@@ -37,6 +37,10 @@ help:
 
 install:
 	mkdir -p ./data
+	mkdir -p ./data/html_cache
+	mkdir -p ./data/names
+	mkdir -p ./public
+	mkdir -p ./public/graphs
 	mkdir -p ./env
 	touch ./data/last-run.lst
 	touch ./data/summary.json
@@ -51,6 +55,7 @@ publish:
 		--exclude='.git' \
 		--exclude='./data' \
 		--exclude='./env' \
+		--exclude='./public' \
 		--exclude='./wayback-scraper/data' \
 		. ryan953@ryan953.com:/home/ryan953/freshbooks-faces
 

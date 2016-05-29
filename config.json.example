@@ -2,10 +2,13 @@
     "debugging": true,
     "logging": true,
     "errors": true,
-    "cacheDir": "./data/",
+    "cacheDir": "./data/html_cache/",
+    "namesDir": "./data/names/",
+    "graphDir": "./public/graphs/",
+    "summaryFile": "./data/summary.json",
     "teamUrl": "http://www.freshbooks.com/our-team.php",
-    "jsonFile": "./data/summary.json",
     "slack": {
-        "endpoint": "https://hooks.slack.com/services/XXX"
-    }
+      "endpoint": "https://hooks.slack.com/services/XXX"
+    },
+    "graphURLRoot": "http://example.com/"
 }
