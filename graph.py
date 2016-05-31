@@ -11,14 +11,16 @@ def prepareGraphData(data, notAfter):
 
   for key in data:
     value = data[key]
-    ordinal = stringToDate(value['date']).toordinal()
+    dateObj = stringToDate(value['date'])
+    ordinal = dateObj.toordinal()
     if ordinal <= stopOrdinal:
       newData.append(dict(
-        date=value['date'],
+        dateStr=value['date'],
+        date=dateObj,
         ordinal=ordinal,
         count=value['count'],
         additions=value['additions'],
-        removals=-1 * value['removals'],
+        removals=value['removals'],
       ))
 
   return sorted(newData, key=lambda k: k['ordinal'])
@@ -34,34 +36,46 @@ def renderGraph(filename, data):
   addedValues = []
   removedValues = []
 
+  def format_date(x, pos=None):
+    return datetime.date.fromordinal(int(x)).strftime('%Y-%m') # .strftime('%Y-%m-%d')
+
   for value in data:
     dateValues.append(value['ordinal'])
     countValues.append(value['count'])
-    addedValues.append(value['additions'])
-    removedValues.append(value['removals'])
+    if value['additions'] > 0:
+      addedValues.append(value['additions'])
+    else:
+      addedValues.append(None)
+    if value['removals'] > 0:
+      removedValues.append(-1 * value['removals'])
+    else:
+      removedValues.append(None)
 
   fig, axCount = plt.subplots()
   axAdd = axCount.twinx()
 
-  axCount.plot_date(dateValues, countValues, 'b-',
-    xdate=True, ydate=False)
+  axCount.set_zorder(axAdd.get_zorder() + 1) # put ax in front of ax2
+  axCount.patch.set_visible(False) # hide the 'canvas'
+
+  axCount.plot(dateValues, countValues, 'b-')
   axCount.set_ylabel('Total Employees',
     color='blue')
   for tl in axCount.get_yticklabels():
     tl.set_color('b')
   axCount.grid(True)
-  # axCount.set_zorder(2)
+  axCount.xaxis.set_major_formatter(FuncFormatter(format_date))
 
-  axAdd.plot_date(
-    dateValues, addedValues, 'g-')
-  axAdd.plot_date(
-    dateValues, removedValues, 'r-')
-  axAdd.set_ylabel('Delta',
-    color='g')
+  addMarkerline, addStemlines, addBaseline = axAdd.stem(dateValues, addedValues, 'g:')
+  rmMarkerline, rmStemlines, rmBaseline = axAdd.stem(dateValues, removedValues, 'r:')
+  axAdd.set_ylabel('Delta', color='g')
   for tl in axAdd.get_yticklabels():
     tl.set_color('g')
-  # axAdd.set_zorder(1)
 
   axAdd.set_xbound(data[0]['ordinal'], data[-1]['ordinal'])
+
+  plt.setp(addMarkerline, 'markerfacecolor', 'g')
+  plt.setp(rmMarkerline, 'markerfacecolor', 'r')
+  plt.setp(addBaseline, 'color', 'black', 'linewidth', 1)
+  plt.setp(rmBaseline, 'color', 'black', 'linewidth', 1)
 
   plt.savefig(filename)
