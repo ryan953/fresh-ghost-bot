@@ -33,7 +33,8 @@ class DataImporter(object):
     htmlFile = self.settings['cacheDir'] + today + '.html'
     listFile = self.settings['namesDir'] + today + '.lst'
 
-    print('Starting %s' % (htmlFile, ))
+    print('Starting %s' % (today, ))
+    print('HTML file %s' % (htmlFile, ))
     print('List file %s' % (listFile, ))
 
     if (self.args.download):
@@ -48,19 +49,19 @@ class DataImporter(object):
       listFile
     )
 
+    print('Prev List file %s' % (prevListFile, ))
+
     newNameList = HTMLPage(htmlFile).getPeopleNames()
     print('Found %s new names (incl dogs)' % (len(newNameList), ))
 
     if prevListFile:
       oldNameList = readLines(prevListFile)
-      print('Prev name list %s (%s names)' % (prevListFile, len(oldNameList), ))
+      print('Found %s prev names' % (len(oldNameList), ))
 
       ghosts = getMissingNames(oldNameList, newNameList)
+      freshies = getMissingNames(newNameList, oldNameList)
       print('Found %s ghosts' % (len(ghosts), ))
-
-      remaining = len(oldNameList) - len(ghosts)
-      additions = len(newNameList) - remaining
-      print('Found %s new Freshies' % (additions, ))
+      print('Found %s new Freshies' % (len(freshies), ))
 
       for ghost in ghosts:
         if self.args.verbose:
@@ -68,10 +69,14 @@ class DataImporter(object):
         if self.args.slack:
           postGhostToSlack(self.settings['slack']['endpoint'], ghost)
           print('Posted to slack about %s', (name, ))
+      for freshie in freshies:
+        if self.args.verbose:
+          print('%s is fresh' % (freshie, ))
+
     else:
       print('No prev name list found. Is this the start of time?')
       ghosts = []
-      additions = 0
+      freshies = []
 
     if self.args.save:
       print('Saving new names list to %s' % (listFile, ))
@@ -82,7 +87,7 @@ class DataImporter(object):
       summaryData[today] = dict(
         date=todayClean,
         count=len(newNameList),
-        additions=additions,
+        additions=len(freshies),
         removals=len(ghosts),
       )
       jsonFileReader.close()
@@ -108,7 +113,7 @@ class DataImporter(object):
           dict(
             date=todayClean,
             count=len(newNameList),
-            additions=additions,
+            additions=len(freshies),
             removals=len(ghosts),
           ))
         print('Posted graph image to slack')

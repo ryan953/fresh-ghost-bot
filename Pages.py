@@ -41,9 +41,9 @@ class HTMLPage(object):
     for strat in strategies:
       names = strat(soup)
       if len(names) > 0:
-        print('Found Names')
+        print('Parsing HTML with %s - found names' % (strat.func_name, ))
         return names
       else:
-        print('No Names')
+        print('Parsing HTML with %s - no names' % (strat.func_name, ))
 
     return None
