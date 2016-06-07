@@ -9,6 +9,14 @@ def postGhostToSlack(endpoint, name):
     urllib2.Request(endpoint, data)
   )
 
+def postFreshieToSlack(endpoint, name):
+  data = json.dumps({
+    'text': '%s is new' % (name,),
+  })
+  urllib2.urlopen(
+    urllib2.Request(endpoint, data)
+  )
+
 def postGraphToSlack(endpoint, date, graphURL, summaryData):
   data = json.dumps({
     'attachments': [{

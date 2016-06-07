@@ -5,7 +5,7 @@ from Pages import HTMLPage
 from debug import *
 from files import readLines, writeLines, writeData, listFiles
 from graph import prepareGraphData, renderGraph
-from slack import postGhostToSlack, postGraphToSlack
+from slack import postGhostToSlack, postFreshieToSlack, postGraphToSlack
 from utils import getToday, getMissingNames, getFilenameBefore
 
 import argparse
@@ -66,12 +66,18 @@ class DataImporter(object):
       for ghost in ghosts:
         if self.args.verbose:
           print('%s is a FreshGhost' % (ghost, ))
+
         if self.args.slack:
           postGhostToSlack(self.settings['slack']['endpoint'], ghost)
-          print('Posted to slack about %s', (name, ))
+          print('Posted to slack about %s', (ghost, ))
+
       for freshie in freshies:
         if self.args.verbose:
           print('%s is fresh' % (freshie, ))
+
+        if self.args.newbies and self.args.slack:
+          postFreshieToSlack(self.settings['slack']['endpoint'], freshie)
+          print('Posted to slack about %s', (freshie, ))
 
     else:
       print('No prev name list found. Is this the start of time?')
@@ -130,6 +136,7 @@ if __name__ == "__main__":
   parser.add_argument('--save', action='store_true', help='save new list & update summary json')
   parser.add_argument('--slack', action='store_true', help='post to slack')
   parser.add_argument('--verbose', action='store_true', help='verbose output')
+  parser.add_argument('--newbies', action='store_true', help='verbose output')
 
   importer = DataImporter(parser.parse_args())
   importer.scrape()

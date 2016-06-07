@@ -37,7 +37,7 @@ def renderGraph(filename, data):
   removedValues = []
 
   def format_date(x, pos=None):
-    return datetime.date.fromordinal(int(x)).strftime('%Y-%m') # .strftime('%Y-%m-%d')
+    return datetime.date.fromordinal(int(x)).strftime('%Y-%m')
 
   for value in data:
     dateValues.append(value['ordinal'])
