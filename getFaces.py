@@ -28,6 +28,7 @@ class DataImporter(object):
     today = getToday()
     if self.args.date:
       today = self.args.date
+      self.args.download = false # can't set another date and download
 
     todayClean = re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today)
     htmlFile = self.settings['cacheDir'] + today + '.html'
