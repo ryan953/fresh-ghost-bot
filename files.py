@@ -24,4 +24,4 @@ def writeData(data, filename):
 
 def listFiles(dir):
   onlyfiles = [dir + f for f in listdir(dir) if isfile(join(dir, f))]
-  return onlyfiles
+  return sorted(onlyfiles)
