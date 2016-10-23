@@ -14,6 +14,18 @@ def getH3UnderTeamClass(soup):
   titles = soup.findAll('div', 'team') # need to find all `.team > h3`
   return [title.find('h3').string for title in titles]
 
+def getPreDashNames(soup):
+  exec_cards = soup.findAll('div', 'exec') # need to find all `.exec > .name`
+  execs = [card.find('span', 'name').string for card in exec_cards]
+  empl_cards = soup.findAll('div', 'freshbooker') # need to find all `.freshbooker > .name`
+  freshbookers = [card.find('span', 'name').string for card in empl_cards]
+  return execs + freshbookers
+
+def getDashNames(soup):
+  execs = soup.findAll('h3', 'exec-name')
+  freshbookers = soup.findAll('h3', 'freshbooker-name')
+  return execs + freshbookers
+
 class HTMLPage(object):
   def __init__(self, filename):
     self.filename = filename
@@ -36,6 +48,8 @@ class HTMLPage(object):
       getFromTeamNameContainer,
       getH3FromTeamImg,
       getH3UnderTeamClass,
+      getPreDashNames,
+      getDashNames,
     ]
 
     for strat in strategies:
