@@ -8,6 +8,7 @@
     "summaryFile": "./data/summary.json",
     "teamUrl": "http://www.freshbooks.com/our-team.php",
     "slack": {
+      "channel": "#ghostbot",
       "endpoint": "https://hooks.slack.com/services/XXX"
     },
     "graphURLRoot": "http://example.com/"

@@ -5,7 +5,7 @@ from Pages import HTMLPage
 from debug import *
 from files import readLines, writeLines, writeData, listFiles
 from graph import prepareGraphData, renderGraph
-from slack import postGhostToSlack, postFreshieToSlack, postGraphToSlack
+from slack import postGhostsToSlack, postFreshiesToSlack, postGraphToSlack
 from utils import getToday, getMissingNames, getFilenameBefore
 
 import argparse
@@ -33,6 +33,7 @@ class DataImporter(object):
     todayClean = re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today)
     htmlFile = self.settings['cacheDir'] + today + '.html'
     listFile = self.settings['namesDir'] + today + '.lst'
+    slackChannel = self.settings['slack'].get('channel', None)
 
     print('Starting %s' % (today, ))
     print('HTML file %s' % (htmlFile, ))
@@ -64,21 +65,24 @@ class DataImporter(object):
       print('Found %s ghosts' % (len(ghosts), ))
       print('Found %s new Freshies' % (len(freshies), ))
 
-      for ghost in ghosts:
-        if self.args.verbose:
-          print('%s is a FreshGhost' % (ghost, ))
+      if self.args.verbose:
+        print('%s is a FreshGhost' % (ghosts, ))
+        print('%s is fresh' % (freshies, ))
 
-        if self.args.slack:
-          postGhostToSlack(self.settings['slack']['endpoint'], ghost)
-          print('Posted to slack about %s', (ghost, ))
+      if self.args.slack:
+        if len(ghosts):
+          postGhostsToSlack(
+            self.settings['slack']['endpoint'],
+            ghosts,
+            slackChannel)
+          print('Posted ghosts to slack channel %s' % (slackChannel, ))
 
-      for freshie in freshies:
-        if self.args.verbose:
-          print('%s is fresh' % (freshie, ))
-
-        if self.args.newbies and self.args.slack:
-          postFreshieToSlack(self.settings['slack']['endpoint'], freshie)
-          print('Posted to slack about %s', (freshie, ))
+        if len(freshies) and self.args.newbies:
+          postFreshiesToSlack(
+            self.settings['slack']['endpoint'],
+            freshies,
+            slackChannel)
+          print('Posted freshies to slack channel %s' % (slackChannel, ))
 
     else:
       print('No prev name list found. Is this the start of time?')
@@ -122,8 +126,9 @@ class DataImporter(object):
             count=len(newNameList),
             additions=len(freshies),
             removals=len(ghosts),
-          ))
-        print('Posted graph image to slack')
+          ),
+          slackChannel)
+        print('Posted graph image to slack channel %s' % (slackChannel, ))
 
     print('Done')
 
