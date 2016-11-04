@@ -1,25 +1,27 @@
 import json
 import urllib2
 
-def postSlackData(endpoint, data, channel):
+def postSlackData(endpoint, channel, data):
   if channel:
     data['channel'] = channel
 
   print(json.dumps(data))
   urllib2.urlopen(urllib2.Request(endpoint, json.dumps(data)))
 
-def postGhostsToSlack(endpoint, names, channel=None):
-  postSlackData({
-    'text': '\n'.join(['%s is a FreshGhost' % (name,) for name in names]),
-  })
-
-def postFreshiesToSlack(endpoint, names, channel=None):
-  postSlackData({
-    'text': '\n'.join(['%s is new\n' % (name,) for name in names]),
+def postFacesToSlack(endpoint, date, freshies, ghosts, channel=None):
+  postSlackData(endpoint, channel, {
+    'attachments': [{
+      'fallback': 'There are %s ghosts and %s freshies today!' % (len(ghosts), len(freshies), ),
+      'title': 'Employee Changes - %s' % (date, ),
+      'fields': [
+        {'title': 'Ghosts', 'short': True, 'value': '\n'.join(ghosts)},
+        {'title': 'Newbies', 'short': True, 'value': '\n'.join(freshies)},
+      ],
+    }],
   })
 
 def postGraphToSlack(endpoint, date, graphURL, summaryData, channel=None):
-  postSlackData({
+  postSlackData(endpoint, channel, {
     'attachments': [{
       'fallback': 'Today\'s employee chart is ready',
       'title': 'Employee Growth Chart - %s' % (date, ),
@@ -30,5 +32,5 @@ def postGraphToSlack(endpoint, date, graphURL, summaryData, channel=None):
         {'title': 'Total Employees', 'value': summaryData['count'], 'short': True},
       ],
       'image_url': graphURL,
-    }]
+    }],
   })

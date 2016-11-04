@@ -5,7 +5,7 @@ from Pages import HTMLPage
 from debug import *
 from files import readLines, writeLines, writeData, listFiles
 from graph import prepareGraphData, renderGraph
-from slack import postGhostsToSlack, postFreshiesToSlack, postGraphToSlack
+from slack import postFacesToSlack, postGraphToSlack
 from utils import getToday, getMissingNames, getFilenameBefore
 
 import argparse
@@ -70,19 +70,15 @@ class DataImporter(object):
         print('%s is fresh' % (freshies, ))
 
       if self.args.slack:
-        if len(ghosts):
-          postGhostsToSlack(
+        if len(ghosts) or (self.args.newbies and len(newbies)):
+          print('posting', today, freshies, ghosts, slackChannel)
+          postFacesToSlack(
             self.settings['slack']['endpoint'],
+            today,
+            freshies,
             ghosts,
             slackChannel)
-          print('Posted ghosts to slack channel %s' % (slackChannel, ))
-
-        if len(freshies) and self.args.newbies:
-          postFreshiesToSlack(
-            self.settings['slack']['endpoint'],
-            freshies,
-            slackChannel)
-          print('Posted freshies to slack channel %s' % (slackChannel, ))
+          print('Posted ghosts & freshies to slack channel %s' % (slackChannel, ))
 
     else:
       print('No prev name list found. Is this the start of time?')
