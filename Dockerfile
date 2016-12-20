@@ -1,0 +1,7 @@
+FROM python:2.7
+ADD requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+ADD . /fresh-ghost-bot
+WORKDIR /fresh-ghost-bot
+EXPOSE 5000
+CMD ["make", "test"]

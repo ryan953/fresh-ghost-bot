@@ -1,0 +1,8 @@
+app:
+  container_name: fresh-ghost-bot
+  build: .
+  volumes:
+   - .:/fresh-ghost-bot
+  command: /bin/bash
+  stdin_open: true
+  tty: true

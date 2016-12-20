@@ -34,6 +34,16 @@ help:
 	@echo ""
 
 
+.PHONEY: docker-dev docker-build docker-up
+
+docker-dev:
+	docker build .
+	docker-compose -f docker-compose.yaml up -d
+	docker exec -i -t fresh-ghost-bot /bin/bash
+
+docker-up:
+	docker-compose up
+
 install:
 	mkdir -p ./data
 	mkdir -p ./data/html_cache
@@ -46,7 +56,7 @@ install:
 	[ -s ./data/summary.json ] || echo '{}' > ./data/summary.json
 	pip install virtualenv
 	virtualenv ./env
-	source ./env/bin/activate && pip install BeautifulSoup matplotlib && deactivate
+	source ./env/bin/activate && pip install -r requirements.txt && deactivate
 
 publish:
 	rsync -zhrv -e '/usr/bin/ssh' \
@@ -64,16 +74,16 @@ publish-data:
 		./data ryan953@ryan953.com:/home/ryan953/freshbooks-faces/data
 
 test:
-	source ./env/bin/activate && python getFaces.py --download --verbose && deactivate
+	python getFaces.py --download --verbose
 
 test-slack:
-	source ./env/bin/activate && python getFaces.py --download --verbose --slack && deactivate
+	python getFaces.py --download --verbose --slack
 
 test-save:
-	source ./env/bin/activate && python getFaces.py --download --verbose --save && deactivate
+	python getFaces.py --download --verbose --save
 
 scrape:
-	source ./env/bin/activate && python getFaces.py --download --save --graph --slack --newbies && deactivate
+	python getFaces.py --download --save --graph --slack --newbies
 
 wayback-extract:
 	touch ./wayback-scraper/examined.lst
