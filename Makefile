@@ -34,15 +34,12 @@ help:
 	@echo ""
 
 
-.PHONEY: docker-dev docker-build docker-up
+.PHONEY: docker-dev
 
 docker-dev:
 	docker build .
 	docker-compose -f docker-compose.yaml up -d
 	docker exec -i -t fresh-ghost-bot /bin/bash
-
-docker-up:
-	docker-compose up
 
 install:
 	mkdir -p ./data
