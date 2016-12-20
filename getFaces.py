@@ -66,8 +66,10 @@ class DataImporter(object):
       print('Found %s new Freshies' % (len(freshies), ))
 
       if self.args.verbose:
-        print('%s is a FreshGhost' % (ghosts, ))
-        print('%s is fresh' % (freshies, ))
+        for name in ghosts:
+          print('%s is a FreshGhost' % (name, ))
+        for name in freshies:
+          print('%s is fresh' % (name, ))
 
       if self.args.slack:
         if len(ghosts) or (self.args.newbies and len(newbies)):
