@@ -1,4 +1,5 @@
 .PHONEY: help
+.PHONEY: docker-dev
 .PHONEY: install
 .PHONEY: publish
 .PHONEY: publish-data
@@ -32,9 +33,6 @@ help:
 	@echo "scrape"
 	@echo "    Run the script, save new data, post results"
 	@echo ""
-
-
-.PHONEY: docker-dev
 
 docker-dev:
 	docker build .
@@ -71,16 +69,17 @@ publish-data:
 		./data ryan953@ryan953.com:/home/ryan953/freshbooks-faces/data
 
 test:
-	python getFaces.py --download --verbose
+	python src/getFaces.py --download --verbose
+	py.test
 
 test-slack:
-	python getFaces.py --download --verbose --slack
+	python src/getFaces.py --download --verbose --slack
 
 test-save:
-	python getFaces.py --download --verbose --save
+	python src/getFaces.py --download --verbose --save
 
 scrape:
-	python getFaces.py --download --save --graph --slack --newbies
+	python src/getFaces.py --download --save --graph --slack --newbies
 
 wayback-extract:
 	touch ./wayback-scraper/examined.lst

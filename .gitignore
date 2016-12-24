@@ -5,4 +5,4 @@ public/*
 wayback-scraper/data
 wayback-scraper/*.lst
 *.pyc
-
+.cache/
