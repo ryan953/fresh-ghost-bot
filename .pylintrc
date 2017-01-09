@@ -1,0 +1,68 @@
+[MASTER]
+
+# Add <file or directory> to the black list. It should be a base name, not a
+# path. You may set this option multiple times.
+ignore=.git,data,public,wayback-scraper
+
+# Pickle collected data for later comparisons.
+persistent=yes
+
+[MESSAGES CONTROL]
+
+# Disable the message(s) with the given id(s).
+# disable-msg=C0323,W0142,C0301,C0103,C0111,E0213,C0302,C0203,W0703,R0201
+disable-msg=c0111
+
+
+[REPORTS]
+
+# set the output format. Available formats are text, parseable, colorized and
+# html
+# output-format=colorized
+
+# Include message's id in output
+include-ids=yes
+
+
+
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=12
+
+# Maximum number of locals for function / method body
+max-locals=30
+
+# Maximum number of return / yield for function / method body
+max-returns=12
+
+# Maximum number of branch for function / method body
+max-branchs=30
+
+# Maximum number of statements in function / method body
+max-statements=60
+
+# Maximum number of parents for a class (see R0901).
+max-parents=7
+
+# Maximum number of attributes for a class (see R0902).
+max-attributes=20
+
+# Minimum number of public methods for a class (see R0903).
+min-public-methods=0
+
+# Maximum number of public methods for a class (see R0904).
+max-public-methods=20
+
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+max-line-length=90
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
+# tab).
+indent-string='  '

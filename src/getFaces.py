@@ -1,17 +1,15 @@
-from BeautifulSoup import SoupStrainer
-from Downloader import Downloader
-from Pages import HTMLPage
-
-from debug import *
-from files import readLines, writeLines, writeData, listFiles
-from graph import prepareGraphData, renderGraph
-from slack import postFacesToSlack, postGraphToSlack
-from utils import getToday, getMissingNames, getFilenameBefore
-
 import argparse
 import json
 import re
 import sys
+
+from Downloader import Downloader
+from Pages import HTMLPage
+
+from files import readLines, writeLines, writeData, listFiles
+from graph import prepareGraphData, renderGraph
+from slack import postFacesToSlack, postGraphToSlack
+from utils import getToday, getMissingNames, getFilenameBefore
 
 class DataImporter(object):
   def __init__(self, args):
@@ -20,8 +18,8 @@ class DataImporter(object):
       local = open(args.config)
       self.settings = json.load(local)
       local.close()
-    except IOError as e:
-      print('No config file %s found' % (args.config,))
+    except IOError as error:
+      print 'No config file %s found (%s)' % (args.config, error)
       sys.exit(1)
 
   def scrape(self):
@@ -30,117 +28,128 @@ class DataImporter(object):
       today = self.args.date
       self.args.download = False # can't set another date and download
 
-    todayClean = re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today)
-    htmlFile = self.settings['cacheDir'] + today + '.html'
-    listFile = self.settings['namesDir'] + today + '.lst'
-    slackChannel = self.settings['slack'].get('channel', None)
+    today_clean = re.sub(r'(\d{4}\-\d{2}\-\d{2}).*', r'\1', today)
+    html_file = self.settings['cacheDir'] + today + '.html'
+    list_file = self.settings['namesDir'] + today + '.lst'
+    slack_channel = self.settings['slack'].get('channel', None)
 
-    print('Starting %s' % (today, ))
-    print('HTML file %s' % (htmlFile, ))
-    print('List file %s' % (listFile, ))
+    print 'Starting %s' % (today, )
+    print 'HTML file %s' % (html_file, )
+    print 'List file %s' % (list_file, )
 
-    if (self.args.download):
+    if self.args.download:
       writeData(
-        Downloader().download(self.settings['teamUrl'], self.args.verbose),
-        htmlFile
-      )
+          Downloader().download(self.settings['teamUrl'], self.args.verbose),
+          html_file)
 
-    allFiles = listFiles(self.settings['namesDir'])
-    prevListFile = getFilenameBefore(
-      [f for f in allFiles if f[-4:] == '.lst'],
-      listFile
-    )
+    all_files = listFiles(self.settings['namesDir'])
+    prev_list_file = getFilenameBefore(
+        [f for f in all_files if f[-4:] == '.lst'],
+        list_file)
 
-    print('Prev List file %s' % (prevListFile, ))
+    print 'Prev List file %s' % (prev_list_file, )
 
-    newNameList = HTMLPage(htmlFile).getPeopleNames()
-    print('Found %s new names (incl dogs)' % (len(newNameList), ))
+    new_name_list = HTMLPage(html_file).getPeopleNames()
+    print 'Found %s new names (incl dogs)' % (len(new_name_list), )
 
-    if prevListFile:
-      oldNameList = readLines(prevListFile)
-      print('Found %s prev names' % (len(oldNameList), ))
+    if prev_list_file:
+      old_name_list = readLines(prev_list_file)
+      print 'Found %s prev names' % (len(old_name_list), )
 
-      ghosts = getMissingNames(oldNameList, newNameList)
-      freshies = getMissingNames(newNameList, oldNameList)
-      print('Found %s ghosts' % (len(ghosts), ))
-      print('Found %s new Freshies' % (len(freshies), ))
+      ghosts = getMissingNames(old_name_list, new_name_list)
+      freshies = getMissingNames(new_name_list, old_name_list)
+      print 'Found %s ghosts' % (len(ghosts), )
+      print 'Found %s new Freshies' % (len(freshies), )
 
       if self.args.verbose:
         for name in ghosts:
-          print('%s is a FreshGhost' % (name, ))
+          print '%s is a FreshGhost' % (name, )
         for name in freshies:
-          print('%s is fresh' % (name, ))
+          print '%s is fresh' % (name, )
 
       if self.args.slack:
-        if len(ghosts) or (self.args.newbies and len(newbies)):
-          print('posting', today, freshies, ghosts, slackChannel)
+        if len(ghosts) or (self.args.newbies and len(freshies)):
+          print 'posting', today, freshies, ghosts, slack_channel
           postFacesToSlack(
-            self.settings['slack']['endpoint'],
-            today,
-            freshies,
-            ghosts,
-            slackChannel)
-          print('Posted ghosts & freshies to slack channel %s' % (slackChannel, ))
+              self.settings['slack']['endpoint'],
+              today,
+              freshies,
+              ghosts,
+              slack_channel)
+          print 'Posted ghosts & freshies to slack channel %s' % (slack_channel, )
 
     else:
-      print('No prev name list found. Is this the start of time?')
+      print 'No prev name list found. Is this the start of time?'
       ghosts = []
       freshies = []
 
     if self.args.save:
-      print('Saving new names list to %s' % (listFile, ))
-      writeLines(listFile, newNameList)
+      print 'Saving new names list to %s' % (list_file, )
+      writeLines(list_file, new_name_list)
 
-      jsonFileReader = open(self.settings['summaryFile'], 'r')
-      summaryData = json.load(jsonFileReader)
-      summaryData[today] = dict(
-        date=todayClean,
-        count=len(newNameList),
-        additions=len(freshies),
-        removals=len(ghosts),
+      json_file_reader = open(self.settings['summaryFile'], 'r')
+      summary_data = json.load(json_file_reader)
+      summary_data[today] = dict(
+          date=today_clean,
+          count=len(new_name_list),
+          additions=len(freshies),
+          removals=len(ghosts),
       )
-      jsonFileReader.close()
+      json_file_reader.close()
 
-      print('Adding to summary json %s' % (self.settings['summaryFile'], ))
-      jsonFileWriter = open(self.settings['summaryFile'], 'w')
-      json.dump(summaryData, jsonFileWriter)
-      jsonFileWriter.close()
+      print 'Adding to summary json %s' % (self.settings['summaryFile'], )
+      json_file_writer = open(self.settings['summaryFile'], 'w')
+      json.dump(summary_data, json_file_writer)
+      json_file_writer.close()
 
     if self.args.graph:
-      print('Building graph')
-      jsonFileReader = open(self.settings['summaryFile'], 'r')
+      print 'Building graph'
+      json_file_reader = open(self.settings['summaryFile'], 'r')
       renderGraph(
-        self.settings['graphDir'] + todayClean + '.png',
-        prepareGraphData(json.load(jsonFileReader), todayClean),
+          self.settings['graphDir'] + today_clean + '.png',
+          prepareGraphData(json.load(json_file_reader), today_clean),
       )
 
       if self.args.slack:
         postGraphToSlack(
-          self.settings['slack']['endpoint'],
-          todayClean,
-          self.settings['graphURLRoot'] + todayClean + '.png',
-          dict(
-            date=todayClean,
-            count=len(newNameList),
-            additions=len(freshies),
-            removals=len(ghosts),
-          ),
-          slackChannel)
-        print('Posted graph image to slack channel %s' % (slackChannel, ))
+            self.settings['slack']['endpoint'],
+            today_clean,
+            self.settings['graphURLRoot'] + today_clean + '.png',
+            dict(
+                date=today_clean,
+                count=len(new_name_list),
+                additions=len(freshies),
+                removals=len(ghosts),
+            ),
+            slack_channel)
+        print 'Posted graph image to slack channel %s' % (slack_channel, )
 
-    print('Done')
+    print 'Done'
 
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser()
-  parser.add_argument('--config', action='store', help='read files from cacheDir', default='./config.json')
-  parser.add_argument('--date', action='store', help='Use this date string for processing')
-  parser.add_argument('--download', action='store_true', help='download todays file')
-  parser.add_argument('--graph', action='store_true', help='create a graph with the summary data')
-  parser.add_argument('--save', action='store_true', help='save new list & update summary json')
-  parser.add_argument('--slack', action='store_true', help='post to slack')
-  parser.add_argument('--verbose', action='store_true', help='verbose output')
-  parser.add_argument('--newbies', action='store_true', help='verbose output')
+  PARSER = argparse.ArgumentParser()
+  PARSER.add_argument(
+      '--config',
+      action='store',
+      help='read files from cacheDir',
+      default='./config.json')
+  PARSER.add_argument(
+      '--date',
+      action='store',
+      help='Use this date string for processing')
+  PARSER.add_argument('--download', action='store_true', help='download todays file')
+  PARSER.add_argument(
+      '--graph',
+      action='store_true',
+      help='create a graph with the summary data')
+  PARSER.add_argument(
+      '--save',
+      action='store_true',
+      help='save new list & update summary json')
+  PARSER.add_argument('--slack', action='store_true', help='post to slack')
+  PARSER.add_argument('--verbose', action='store_true', help='verbose output')
+  PARSER.add_argument('--newbies', action='store_true', help='verbose output')
 
-  importer = DataImporter(parser.parse_args())
-  importer.scrape()
+  IMPORTER = DataImporter(PARSER.parse_args())
+  IMPORTER.scrape()
