@@ -8,7 +8,7 @@ from Pages import HTMLPage
 
 from files import readLines, writeLines, writeData, listFiles
 from graph import prepareGraphData, renderGraph
-from slack import postFacesToSlack, postGraphToSlack
+from slack import postFacesToSlack
 from utils import getToday, getMissingNames, getFilenameBefore
 
 class DataImporter(object):
@@ -67,17 +67,6 @@ class DataImporter(object):
         for name in freshies:
           print '%s is fresh' % (name, )
 
-      if self.args.slack:
-        if len(ghosts) or (self.args.newbies and len(freshies)):
-          print 'posting', today, freshies, ghosts, slack_channel
-          postFacesToSlack(
-              self.settings['slack']['endpoint'],
-              today,
-              freshies,
-              ghosts,
-              slack_channel)
-          print 'Posted ghosts & freshies to slack channel %s' % (slack_channel, )
-
     else:
       print 'No prev name list found. Is this the start of time?'
       ghosts = []
@@ -110,19 +99,24 @@ class DataImporter(object):
           prepareGraphData(json.load(json_file_reader), today_clean),
       )
 
-      if self.args.slack:
-        postGraphToSlack(
+    if self.args.slack:
+        if self.args.graph:
+            graphURL = self.settings['graphURLRoot'] + today_clean + '.png'
+        else:
+            graphURL = None
+
+        postFacesToSlack(
             self.settings['slack']['endpoint'],
             today_clean,
-            self.settings['graphURLRoot'] + today_clean + '.png',
             dict(
-                date=today_clean,
+                graphURL=graphURL,
                 count=len(new_name_list),
-                additions=len(freshies),
-                removals=len(ghosts),
+                additions=freshies,
+                removals=ghosts,
             ),
             slack_channel)
         print 'Posted graph image to slack channel %s' % (slack_channel, )
+
 
     print 'Done'
 
