@@ -28,7 +28,13 @@ def getDashNames(soup):
   try:
     execs = soup.findAll('h3', 'exec-name')
     freshbookers = soup.findAll('h3', 'freshbooker-name')
-    return [h3.string for h3 in execs + freshbookers]
+    people = []
+    for h3 in execs + freshbookers:
+      if h3.string is not None:
+        people.append(h3.string)
+      else:
+        people.append(h3.contents[0].strip())
+    return people
   except:
     return []
 
