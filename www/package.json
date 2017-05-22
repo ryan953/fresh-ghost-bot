@@ -6,7 +6,7 @@
     "react-scripts": "1.0.3"
   },
   "dependencies": {
-    "c3-react": "^0.1.13",
+    "d3": "^4.9.1",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
   },
