@@ -76,20 +76,36 @@ class DataImporter(object):
       print 'Saving new names list to %s' % (list_file, )
       writeLines(list_file, new_name_list)
 
-      json_file_reader = open(self.settings['summaryFile'], 'r')
-      summary_data = json.load(json_file_reader)
-      summary_data[today] = dict(
+      print 'Adding to summary json %s' % (self.settings['summaryFile'], )
+      with open(self.settings['summaryFile'], 'r+') as summary_file:
+        summary_data = json.load(summary_file)
+        summary_data[today] = dict(
+            date=today_clean,
+            count=len(new_name_list),
+            additions=len(freshies),
+            removals=len(ghosts),
+        )
+        summary_file.seek(0)
+        summary_file.truncate()
+        json.dump(summary_data, summary_file)
+        summary_file.close()
+
+      print 'Adding to tenure json %s' % (self.settings['tenureFile'], )
+      with open(self.settings['tenureFile'], "r+") as tenure_file:
+        tenureSummary = json.load(tenure_file)
+        tenureSummary[today] = dict(
           date=today_clean,
           count=len(new_name_list),
           additions=len(freshies),
           removals=len(ghosts),
-      )
-      json_file_reader.close()
-
-      print 'Adding to summary json %s' % (self.settings['summaryFile'], )
-      json_file_writer = open(self.settings['summaryFile'], 'w')
-      json.dump(summary_data, json_file_writer)
-      json_file_writer.close()
+          survivors=old_name_list,
+          newbies=freshies,
+          ghosts=ghosts,
+        )
+        tenure_file.seek(0)
+        tenure_file.truncate()
+        json.dump(tenureSummary, tenure_file, sort_keys=True)
+        tenure_file.close()
 
     if self.args.graph:
       print 'Building graph'
