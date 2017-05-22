@@ -1,11 +1,12 @@
 {
-  "name": "www",
+  "name": "freshbooks-charts",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
     "react-scripts": "1.0.3"
   },
   "dependencies": {
+    "c3-react": "^0.1.13",
     "react": "^15.5.4",
     "react-dom": "^15.5.4"
   },
