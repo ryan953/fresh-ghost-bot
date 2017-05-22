@@ -87,7 +87,7 @@ class DataImporter(object):
         )
         summary_file.seek(0)
         summary_file.truncate()
-        json.dump(summary_data, summary_file)
+        json.dump(summary_data, summary_file, sort_keys=True)
         summary_file.close()
 
       print 'Adding to tenure json %s' % (self.settings['tenureFile'], )
