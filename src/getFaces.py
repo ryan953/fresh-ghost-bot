@@ -69,8 +69,9 @@ class DataImporter(object):
 
     else:
       print 'No prev name list found. Is this the start of time?'
+      old_name_list = new_name_list
       ghosts = []
-      freshies = []
+      freshies = new_name_list
 
     if self.args.save:
       print 'Saving new names list to %s' % (list_file, )
@@ -93,7 +94,7 @@ class DataImporter(object):
       print 'Adding to tenure json %s' % (self.settings['tenureFile'], )
       with open(self.settings['tenureFile'], "r+") as tenure_file:
         tenureSummary = json.load(tenure_file)
-        tenureSummary[today] = dict(
+        tenureSummary[today_clean] = dict(
           date=today_clean,
           count=len(new_name_list),
           additions=len(freshies),
