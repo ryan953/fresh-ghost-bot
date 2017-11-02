@@ -1,5 +1,8 @@
-import datetime
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+import datetime
 import re
 
 from matplotlib.ticker import FuncFormatter, MaxNLocator
