@@ -50,7 +50,7 @@ class DataImporter(object):
     print 'Prev List file %s' % (prev_list_file, )
 
     new_name_list = HTMLPage(html_file).getPeopleNames()
-    print 'Found %s new names (incl dogs)' % (len(new_name_list), )
+    print 'Found %s new names' % (len(new_name_list), )
 
     if prev_list_file:
       old_name_list = readLines(prev_list_file)

@@ -2,6 +2,13 @@ from BeautifulSoup import BeautifulSoup, SoupStrainer, NavigableString
 
 from debug import *
 
+def getFromH3Tags(soup):
+  # exec_container = soup.find(id='executives')
+  # empl_container = soup.find(id='freshbookers')
+  execs = soup.findAll('h3', 'executive-name')
+  employees = [elem.find('span') for elem in soup.findAll('h3', 'freshbooker-name')]
+  return [elem.string for elem in execs + employees]
+
 def getFromTeamNameContainer(soup):
   titles = soup.findAll('div', 'team-name-container') # need to find all `.team-name-container > h3`
   return [title.find('h3').string for title in titles]
@@ -57,6 +64,7 @@ class HTMLPage(object):
     soup = self.getDom()
 
     strategies = [
+      getFromH3Tags,
       getFromTeamNameContainer,
       getH3FromTeamImg,
       getH3UnderTeamClass,
